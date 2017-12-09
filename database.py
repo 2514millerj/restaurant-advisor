@@ -12,15 +12,26 @@ class Database:
 
         for cust_email, cust_password in cur:
             if cust_email == username and cust_password == password:
-                return cust_email
+                return True
 
-        return None
+        return False
 
     def getUserName(self, username):
-        cur = self.cursor.execute("""SELECT fname FROM restaurant_customer WHERE email = (%s)""", (username))
+        query = "SELECT fname FROM restaurant_customer WHERE email = :username"
+        cur = self.cursor.execute(query, username=username)
 
         userNames = list(cur)
-        return userNames[0]
+        return userNames[0][0]
+
+    def getRestaurants(self):
+        query = "SELECT * FROM restaurant"
+        cur = self.cursor.execute(query)
+        return list(cur)
+
+    def getRestaurantNames(self):
+        query = "SELECT rname FROM restaurant"
+        cur = self.cursor.execute(query)
+        return list(cur)
 
     def close(self):
         print("Closing connection")

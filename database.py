@@ -39,23 +39,39 @@ class Database:
         rid = list(cur)
         return rid[0][0]
 
-    def getRestRating(self, restaurant):
-        #select
-        #R.rname, R.restid, round(avg(CR.rating), 2)
-        #from restaurant R, cust_review
-        #CR
-        #where
-        #CR.restid = R.restid
-        #group
-        #by
-        #R.restid, R.rname
-        query = "SELECT R.rname, R.restid, round(avg(CR.rating), 2) FROM restaurant R, cust_review CR WHERE "
+    def getRestRating(self):
+        query = "SELECT R.rname, R.restid, round(avg(CR.rating), 2) FROM restaurant R, cust_review CR WHERE CR.restid = R.restid GROUP BY R.restid, R.rname"
+        cur = self.cursor.execute(query)
+        ratingCur = list(cur)
+
+        query = "SELECT rname, restid, round(0) FROM restaurant WHERE restid not in (SELECT restid FROM cust_review)"
+        cur = self.cursor.execute(query)
+        noRatingCur = list(cur)
+
+        curList = ratingCur + noRatingCur
+
+        return curList
 
     def getRestaurantMenu(self, restaurant):
         rid = self.getRestIdFromName(restaurant)
         query = "SELECT * FROM menu WHERE restid = :rid"
         cur = self.cursor.execute(query,rid=rid)
         return list(cur)
+
+    def writeReview(self, rid, rating, cust_comment, email):
+        print(rid)
+        print(rating)
+        print(cust_comment)
+        print(email)
+        #insert into CUST_REVIEW VALUES(Customer_ReviewId_Seq.nextval,'john@restaurantadvisor.com',1003,'Gross','Horrible',sysdate + interval '1' minute,2);
+        query = "INSERT INTO cust_review (reviewid, custemail, restid, reviewdescr, rating) VALUES (Customer_ReviewId_Seq.nextval, :email, :rid, :cust_comment, :rating)"
+
+        try:
+            cur = self.cursor.execute(query, rid=rid, rating=rating, cust_comment=cust_comment, email=email)
+            self.con.commit()
+            return True
+        except Exception as e:
+            return False
 
     def close(self):
         print("Closing connection")

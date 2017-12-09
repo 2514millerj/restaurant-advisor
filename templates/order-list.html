@@ -1,6 +1,23 @@
-<!DOCTYPE html>
 <html>
 <head>
+<style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+
 <style>
 body {margin:0;}
 
@@ -30,6 +47,7 @@ body {margin:0;}
 
 
 </style>
+
 </head>
 <body>
 
@@ -43,8 +61,15 @@ body {margin:0;}
 <button type="button">Search</button>
 </div>
 
-<h1>Welcome {{user}}!</h1>
-<h3>Please select an option or perform a search</h3>
+<h1>Restaurant Order List</h1>
+<p>Select a restaurant to order from</p>
 
+<table>
+    {% for rest in restList %}
+    <tr>
+        <td><a href="/rest-order?rid={{rest[1]}}">{{rest[0]}}</a></td>
+    </tr>
+    {% endfor %}
+</table>
 </body>
 </html>

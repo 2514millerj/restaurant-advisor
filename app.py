@@ -36,31 +36,44 @@ def restaurants():
 
 @app.route('/review-list')
 def reviews():
-    restList = db.getRestaurantNames()
+    restList = db.getRestRating()
+
     return render_template("reviews.html", restList=restList)
 
-@app.route('/review', methods=['GET'])
+@app.route('/write-review', methods=['GET'])
+def write_review():
+    rid = request.args.get("rid")
+
+    return render_template("write_review.html", rid=rid)
+
+@app.route('/review', methods=['POST', 'GET'])
 def rest_review():
     rid = request.args.get("rid")
-    print(rid)
+    rating = request.args.get("rating")
+    comment = request.args.get("comment")
+    email = session['email']
 
-    return render_template("rest_review.html")
+    if int(rating) > 5 or int(rating) < 1:
+        return render_template("error.html", message="Please submit vaild rating from 1-5")
 
-@app.route('/order')
+    db.writeReview(rid, rating, comment, email)
+
+    return render_template("success.html", message="Review submitted successfully")
+
+@app.route('/order-list')
 def orders():
     restList = db.getRestaurantNames()
+    return render_template("order-list.html", restList=restList)
 
-    menuList = []
-    for rest in restList:
-        restMenu = db.getRestaurantMenu(rest[0])
-        menuList.append(restMenu)
-
-    return render_template("orders.html", menuList=menuList, restList=restList)
+@app.route('/rest-order', methods=['POST'])
+def rest_order():
+    return render_template("success.html")
 
 @app.route('/logout')
 def logout():
     session['user'] = None
-    return render_template("logout.html")
+    session['email'] = None
+    return render_template("login.html")
 
 @app.route('/submit_login', methods=['POST'])
 def submit_login():
@@ -71,6 +84,7 @@ def submit_login():
     if res:
         #log user in
         user = db.getUserName(username)
+        session['email'] = username
         session['user'] = user
         return home()
     else:

@@ -65,8 +65,15 @@ def orders():
     restList = db.getRestaurantNames()
     return render_template("order-list.html", restList=restList)
 
-@app.route('/rest-order', methods=['POST'])
+@app.route('/rest-order')
 def rest_order():
+    rid = request.args.get("rid")
+    itemList = db.getRestaurantMenu(rid)
+
+    return render_template("orders.html", menu=itemList)
+
+@app.route('/order-submit')
+def order_submit():
     return render_template("success.html")
 
 @app.route('/logout')

@@ -52,8 +52,7 @@ class Database:
 
         return curList
 
-    def getRestaurantMenu(self, restaurant):
-        rid = self.getRestIdFromName(restaurant)
+    def getRestaurantMenu(self, rid):
         query = "SELECT * FROM menu WHERE restid = :rid"
         cur = self.cursor.execute(query,rid=rid)
         return list(cur)

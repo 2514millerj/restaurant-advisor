@@ -1,8 +1,30 @@
 <html>
 <head>
+<style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
 
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
 </head>
 <body>
-{{ user }}
+<table>
+    {% for rest in restList %}
+    <tr>
+        <td><a href="/review?rid={{rest[1]}}">{{rest[0]}}</a></td>
+    </tr>
+    {% endfor %}
+</table>
 </body>
 </html>

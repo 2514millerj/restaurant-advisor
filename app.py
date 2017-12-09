@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template("home.html", user="Brian")
+    return render_template("home.html", user=session['user'])
 
 @app.route('/login')
 def login():
@@ -41,33 +41,37 @@ def reviews():
 
 @app.route('/review', methods=['GET'])
 def rest_review():
+    rid = request.args.get("rid")
+    print(rid)
+
     return render_template("rest_review.html")
 
-@app.route('/order-list')
+@app.route('/order')
 def orders():
-    orderList = db.getRestaurantNames()
-    return render_template("orders.html", orderList=orderList)
+    restList = db.getRestaurantNames()
 
-@app.route('/order', methods=['GET'])
-def rest_order():
-    return render_template("rest_order.html")
+    menuList = []
+    for rest in restList:
+        restMenu = db.getRestaurantMenu(rest[0])
+        menuList.append(restMenu)
+
+    return render_template("orders.html", menuList=menuList, restList=restList)
 
 @app.route('/logout')
 def logout():
+    session['user'] = None
     return render_template("logout.html")
 
 @app.route('/submit_login', methods=['POST'])
 def submit_login():
     username = str(request.form.get("uname"))
     password = str(request.form.get("pswd"))
-    print(username,password)
 
     res = db.authenticateUser(username,password)
     if res:
         #log user in
         user = db.getUserName(username)
         session['user'] = user
-        print(user)
         return home()
     else:
         #return to login

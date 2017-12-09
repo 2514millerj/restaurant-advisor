@@ -17,8 +17,51 @@ tr:nth-child(even) {
     background-color: #dddddd;
 }
 </style>
+
+<style>
+body {margin:0;}
+
+.topnav {
+  overflow: hidden;
+  background-color: #333;
+}
+
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.topnav a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+
+</style>
+
 </head>
 <body>
+<div class="topnav">
+  <a class="active" href="/">Home</a>
+  <a href="/restaurants">Restaurants</a>
+  <a href="/review-list">Reviews</a>
+  <a href="/orders">Orders</a>
+  <a href="/logout">Logout</a>
+<input type="text" name="search" placeholder="Search for Restaurant">
+<button type="button">Search</button>
+</div>
+
+<h1>Restaurant Information</h1>
+
 <table>
 
     {% for restaurant in restaurantData %}

@@ -29,8 +29,32 @@ class Database:
         return list(cur)
 
     def getRestaurantNames(self):
-        query = "SELECT rname FROM restaurant"
+        query = "SELECT rname, restid FROM restaurant"
         cur = self.cursor.execute(query)
+        return list(cur)
+
+    def getRestIdFromName(self, restaurant):
+        query = "SELECT restid FROM restaurant where rname = :restName"
+        cur = self.cursor.execute(query, restName=restaurant)
+        rid = list(cur)
+        return rid[0][0]
+
+    def getRestRating(self, restaurant):
+        #select
+        #R.rname, R.restid, round(avg(CR.rating), 2)
+        #from restaurant R, cust_review
+        #CR
+        #where
+        #CR.restid = R.restid
+        #group
+        #by
+        #R.restid, R.rname
+        query = "SELECT R.rname, R.restid, round(avg(CR.rating), 2) FROM restaurant R, cust_review CR WHERE "
+
+    def getRestaurantMenu(self, restaurant):
+        rid = self.getRestIdFromName(restaurant)
+        query = "SELECT * FROM menu WHERE restid = :rid"
+        cur = self.cursor.execute(query,rid=rid)
         return list(cur)
 
     def close(self):

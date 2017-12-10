@@ -56,8 +56,10 @@ body {margin:0;}
   <a href="/review-list">Reviews</a>
   <a class="active" href="/orders">Orders</a>
   <a href="/logout">Logout</a>
-<input type="text" name="search" placeholder="Search for Restaurant">
-<button type="button">Search</button>
+<form action="/search" method="get">
+    <input type="text" name="search" placeholder="Search for Restaurant">
+    <button type="submit">Search</button>
+  </form>
 </div>
 
 <h1>Order from a Restaurant</h1>

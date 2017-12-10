@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect
 from database import Database
 import json
+import datetime
 
 db = Database()
 
@@ -8,6 +9,9 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
+    if session.get('user', None) is None:
+        return login()
+
     return render_template("home.html", user=session['user'])
 
 @app.route('/login')
@@ -16,6 +20,9 @@ def login():
 
 @app.route('/restaurants')
 def restaurants():
+    if session.get('user', None) is None:
+        return login()
+
     restaurants = db.getRestaurants()
     restArray = []
     for rest in restaurants:
@@ -36,18 +43,29 @@ def restaurants():
 
 @app.route('/review-list')
 def reviews():
+    if session.get('user', None) is None:
+        return login()
+
     restList = db.getRestRating()
 
     return render_template("reviews.html", restList=restList)
 
 @app.route('/write-review', methods=['GET'])
 def write_review():
-    rid = request.args.get("rid")
+    if session.get('user', None) is None:
+        return login()
 
-    return render_template("write_review.html", rid=rid)
+    rid = request.args.get("rid")
+    rname = db.getRestaurantNameFromId(rid)[0][0]
+    reviewList = db.getRestaurantReviews(rid)
+
+    return render_template("write_review.html", rid=rid, reviewList=reviewList, rname=rname)
 
 @app.route('/review', methods=['POST', 'GET'])
 def rest_review():
+    if session.get('user', None) is None:
+        return login()
+
     rid = request.args.get("rid")
     rating = request.args.get("rating")
     comment = request.args.get("comment")
@@ -62,19 +80,55 @@ def rest_review():
 
 @app.route('/order-list')
 def orders():
+    if session.get('user', None) is None:
+        return login()
+
     restList = db.getRestaurantNames()
     return render_template("order-list.html", restList=restList)
 
 @app.route('/rest-order')
 def rest_order():
+    if session.get('user', None) is None:
+        return login()
+
     rid = request.args.get("rid")
     itemList = db.getRestaurantMenu(rid)
 
-    return render_template("orders.html", menu=itemList)
+    return render_template("orders.html", menu=itemList, rid=rid)
 
 @app.route('/order-submit')
 def order_submit():
-    return render_template("success.html")
+    if session.get('user', None) is None:
+        return login()
+
+    rid = request.args.get("rid")
+
+    if request.args.get('Delivery') == 'Y':
+        delivery = 'Y'
+        pickup = 'N'
+    else:
+        delivery = 'N'
+        pickup = 'Y'
+
+    #create restaurant order
+    orderid = db.createRestaurantOrder(session['email'], delivery, pickup)[0][0]
+    print(orderid)
+    if orderid == None:
+        return render_template("error.html")
+
+    itemList = db.getRestaurantMenu(rid)
+    for item in itemList:
+        itemCount = request.args.get(item[1])
+        foodName = item[1]
+        if int(itemCount) > 0:
+            ret = db.createRestaurantODetails(orderid, rid, foodName, itemCount)
+            if not ret:
+                print("Error, returning")
+                return render_template("error.html")
+
+    message = "Order placed successfully. Your order number is " + str(orderid)
+
+    return render_template("success.html", message=message)
 
 @app.route('/logout')
 def logout():
@@ -96,17 +150,66 @@ def submit_login():
         return home()
     else:
         #return to login
-        return render_template("login.html")
+        return login()
 
-    return render_template("home.html")
+    return home()
 
 @app.route('/search', methods=['GET'])
 def search():
-    return search_result()
+    if session.get('user', None) is None:
+        return login()
 
-@app.route('/search-result')
-def search_result():
-    return render_template("search.html")
+    rname = request.args.get("search")
+    restaurant = {}
+    restaurant['name'] = None
+
+    restaurants = db.getRestaurants()
+    for rest in restaurants:
+        if rname == str(rest[1]):
+            restaurant = {
+            'name': str(rest[1]),
+            'phone': str(rest[2]),
+            'email': str(rest[3]),
+            'hours': str(rest[4]),
+            'diningType': str(rest[5]),
+            'streetNo': str(rest[6]),
+            'city': str(rest[7]),
+            'zip': str(rest[8]),
+            'pricerange': str(rest[9]),
+            'deliveryFlag': str(rest[10]),
+            'outdoorsFlag': str(rest[11])
+            }
+            break
+
+    return render_template("search.html", restaurant=restaurant)
+
+@app.route('/register')
+def register():
+    return render_template("register.html")
+
+@app.route('/submit-register', methods=['POST'])
+def submit_register():
+    fname = request.form.get("fname")
+    lname = request.form.get("lname")
+    email = request.form.get("email")
+    street_no = request.form.get("st_no")
+    street_name = request.form.get("st_name")
+    city = request.form.get("city")
+    state = request.form.get("state")
+    zip = request.form.get("zip")
+    password = request.form.get("password1")
+
+    ret = db.addNewUser(fname, lname, email, street_no, street_name, city, state, zip, password)
+
+    if ret:
+        # log user in
+        user = db.getUserName(email)
+        session['email'] = email
+        session['user'] = user
+        return home()
+    else:
+        # return to login
+        return login()
 
 if __name__ == '__main__':
     app.secret_key = 'super secret key'

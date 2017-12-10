@@ -1,24 +1,6 @@
 <html>
 <head>
 <style>
-table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-}
-
-td, th {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-}
-
-tr:nth-child(even) {
-    background-color: #dddddd;
-}
-</style>
-
-<style>
 body {margin:0;}
 
 .topnav {
@@ -47,9 +29,9 @@ body {margin:0;}
 
 
 </style>
-
 </head>
 <body>
+
 <div class="topnav">
   <a class="active" href="/">Home</a>
   <a href="/restaurants">Restaurants</a>
@@ -62,42 +44,25 @@ body {margin:0;}
   </form>
 </div>
 
-<h1>Restaurant Information</h1>
+<h1>Search Results</h1>
 
-<table>
-
-    {% for restaurant in restaurantData %}
-    <tr>
-        <td>{{restaurant.name}}</td>
-        <td><a id="{{restaurant.name}}" href="javascript:toggle('{{restaurant.name}}');">+</a></td>
-    </tr>
-    <tr style="display: none" id="{{restaurant.name}}_div">
-        <td>    <p>    Phone: {{restaurant.phone}} <br />
+{% if restaurant.name == None %}
+<h3>No restaurants found, please try again</h3>
+<form action="/search" method="get">
+    <input type="text" name="search" placeholder="Search for Restaurant">
+    <button type="submit">Search</button>
+  </form>
+{% else %}
+<h3>{{restaurant.name}}</h3>
+<p>    Phone: {{restaurant.phone}} <br />
                        Email: {{restaurant.email}} <br />
                        Hours: {{restaurant.hours}} <br />
                        Price Range: {{restaurant.pricerange}} <br />
                        Address: {{restaurant.streetNo}}, {{restaurant.city}} {{restaurant.zip}} <br />
                        Delivery: {{restaurant.deliveryFlag}} <br />
                        Outdoor Seating: {{restaurant.outdoorsFlag}}
-                </p></td>
-    </tr>
-    {% endfor %}
-</table>
-
-    <script language="javascript">
-    function toggle(restaurantName) {
-    	var ele = document.getElementById(restaurantName + "_div");
-    	var text = document.getElementById(restaurantName);
-    	if(ele.style.display == "block") {
-        		ele.style.display = "none";
-    		text.innerHTML = "+";
-      	}
-    	else {
-    		ele.style.display = "block";
-    		text.innerHTML = "-";
-    	}
-    }
-    </script>
+                </p>
+{% endif %}
 
 </body>
 </html>

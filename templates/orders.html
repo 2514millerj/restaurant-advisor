@@ -62,6 +62,7 @@ body {margin:0;}
 
 <h1>Order from a Restaurant</h1>
 
+<form action="/order-submit" method="get">
 <table>
 
     <tr>
@@ -79,14 +80,19 @@ body {margin:0;}
     <tr>
         <td>{{item[1]}}</td>
         <td>{{item[2]}}</td>
-        <td><button onclick="decrease1('{{item[1]}}')">-</button>
-                    <input type="number" style="width:60px" id="{{item[1]}}">
-                    <button onclick="increase1('{{item[1]}}')">+</button></td>
+        <td><button type="button" onclick="decrease1('{{item[1]}}')">-</button>
+                    <input type="number" style="width:60px" id="{{item[1]}}" name="{{item[1]}}" value="0">
+                    <button type="button" onclick="increase1('{{item[1]}}')">+</button></td>
     </tr>
     {% endfor %}
 </table>
 
-<button onclick="orderTotal()">Place Order</button>
+    <input type="text" style="display: none" value="{{rid}}" name="rid">
+    <button type="submit">Place Order</button>
+    </form>
+
+
+
 <p id="orderTotal"></p>
 
 <script language="javascript">

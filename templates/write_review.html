@@ -38,11 +38,29 @@ body {margin:0;}
   <a href="/review-list">Reviews</a>
   <a href="/order-list">Orders</a>
   <a href="/logout">Logout</a>
-<input type="text" name="search" placeholder="Search for Restaurant">
-<button type="button">Search</button>
+<form action="/search" method="get">
+    <input type="text" name="search" placeholder="Search for Restaurant">
+    <button type="submit">Search</button>
+  </form>
 </div>
 
-<h1>Write a Review For {{restaurant}}</h1>
+<h1>{{rname}} Review Page</h1>
+
+<h2>Recent Reviews:</h2>
+
+{% for review in reviewList %}
+<p><strong>Title: </strong>{% if review[1] == None %}
+                  Review
+                  {% else %}
+                  {{review[1]}}
+                  {% endif %}<br />
+  <strong>Rating: </strong>{{review[0]}} <br />
+{{review[2]}}
+</p>
+<hr />
+{% endfor %}
+
+<h2>Write a Review For {{rname}}</h2>
 
 <form action="/review">
   Rating:<br>

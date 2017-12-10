@@ -165,7 +165,7 @@ def search():
 
     restaurants = db.getRestaurants()
     for rest in restaurants:
-        if rname == str(rest[1]):
+        if rname in str(rest[1]):
             restaurant = {
             'name': str(rest[1]),
             'phone': str(rest[2]),
@@ -198,6 +198,10 @@ def submit_register():
     state = request.form.get("state")
     zip = request.form.get("zip")
     password = request.form.get("password1")
+    password2 = request.form.get("password2")
+
+    if password2 != password:
+        return render_template("error.html", message="Passwords entered did not match, please go back and try again")
 
     ret = db.addNewUser(fname, lname, email, street_no, street_name, city, state, zip, password)
 
